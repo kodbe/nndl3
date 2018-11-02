@@ -24,7 +24,8 @@ from multiprocessing import Process
 from sys import getsizeof
 from pympler.classtracker import ClassTracker
 from pympler import asizeof
-from scipy.sparse import random as rnd
+#from scipy.sparse import random as rnd
+from scipy.sparse import rand as rnd
 from multiprocessing import Pool
 import multiprocessing
 
@@ -78,7 +79,7 @@ class Network(object):
         return a
 
     def SGD(self, training_data, epochs, mini_batch_size, eta,
-            test_data=None, tracker=None):
+            test_data=None, tracker=None, sparse=False, multithreaded=0):
         """Train the neural network using mini-batch stochastic
         gradient descent.  The ``training_data`` is a list of tuples
         ``(x, y)`` representing the training inputs and the desired
@@ -89,7 +90,7 @@ class Network(object):
         tracking progress, but slows things down substantially."""
 
         start_time = time.time()
-        self.generate_weights(True)
+        self.generate_weights(sparse)
         #tracker = ClassTracker()
         #tracker.track_class(Network)
         self.tracker = tracker
@@ -100,7 +101,6 @@ class Network(object):
             test_data = list(test_data)
             n_test = len(test_data)
 
-        multithreaded = 2
         self.process_batches_ll(n, epochs, training_data, test_data, mini_batch_size, eta, n_test, multithreaded)
         #with Pool(8) as p:
         #    p.apply(self.process_batches, args=(n, epochs, training_data, test_data, mini_batch_size, eta, n_test))
@@ -123,7 +123,7 @@ class Network(object):
             args = []
             for i in range(epochs):
                 args.append((n, 1, training_data, test_data, mini_batch_size, eta, n_test))
-            print('doing pools', multiprocessing.cpu_count())
+            print('processing with pools: ', multiprocessing.cpu_count())
             with Pool(multiprocessing.cpu_count()) as p:
                     p.map(self.process_batches_wrapper, args)
         else:
@@ -256,3 +256,4 @@ def sigmoid_prime(z):
     sp = sigmoid(z)*(1-sigmoid(z))
     #print('sp is ', sp)
     return sp
+

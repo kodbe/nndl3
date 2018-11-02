@@ -27,6 +27,7 @@ training_data = list(training_data)
 import network
 from pympler.classtracker import ClassTracker
 from pympler.classtracker_stats import HtmlStats
+import numpy as np
 
 tracker = ClassTracker()
 
@@ -36,7 +37,16 @@ tracker.track_object(net, resolution_level=5)
 #tracker.start_periodic_snapshots(interval=.5)
 #HtmlStats(tracker=tracker).create_html('tracker.html')
 #tracker.stats.dump_stats('trackerfile')
-net.SGD(training_data, 24, 10, 3.0, test_data=test_data, tracker=tracker)
+#multithreaded | 0:Serial, 1: Parallel, 2: Parallel with Pools
+#print('class of training data: ', np.size(training_data), 'class of element of training data: ', training_data[0].__class__)
+#c=training_data.count(training_data)
+#training_data=np.asarray(training_data[444][1]).flatten()
+#print('shape of training data: ', training_data.shape())
+#print('training data count: ', training_data)
+#s=np.size(training_data)
+#snz=np.count_nonzero(training_data)
+#print('size of training data: ', s, '\nnon zero elements in training data: ', snz)
+net.SGD(training_data, 24, 10, 3.0, test_data=test_data, tracker=tracker, sparse=True, multithreaded=1)
 #'''
 
 # ----------------------
